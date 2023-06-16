@@ -1,2 +1,12 @@
 // entry point for smartass
-import { KindleHighlightsScraper } from "./kindle/highlights";
+import { KindleClippingsExtractor } from "./kindle/clippings";
+
+// Create an instance of the KindleFileCopier class
+const copier = new KindleClippingsExtractor(
+	'/media/pi/Kindle',
+	'/media/pi/Kindle/documents/My Clippings.txt',
+	`${process.env.HOME}/Desktop`
+);
+
+// Run the script
+copier.run();
