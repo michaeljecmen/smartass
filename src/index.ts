@@ -1,10 +1,10 @@
 // entry point for smartass
-import { KindleClippingsExtractor } from "./kindle/clippings";
+import { KindleClippings } from "./kindle/clippings";
 
 // Create an instance of the KindleFileCopier class
-const copier = new KindleClippingsExtractor(
+const copier = new KindleClippings (
 	'/media/pi/Kindle',
-	'/media/pi/Kindle/documents/My Clippings.txt', // <-- these filepaths are actually correct
+	'documents/My Clippings.txt',
 	`${process.env.HOME}/Desktop`
 );
 

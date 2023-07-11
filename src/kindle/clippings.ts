@@ -1,63 +1,32 @@
 // for grabbing highlights off of your physical device
 import { exec } from 'child_process';
-import { promises as fs } from 'fs';
+import * as fs from 'fs';
 
-export class KindleClippingsExtractor {
+export class KindleClippings {
 	private kindleMountPath: string;
-	private kindleClippingsPath: string;
-	private desktopPath: string;
+	private kindleClippingsSubpath: string;
+	private dataDir: string;
 
-	constructor(kindleMountPath: string, kindleClippingsPath: string, desktopPath: string) {
+	constructor(kindleMountPath: string, kindleClippingsSubpath: string) {
 		this.kindleMountPath = kindleMountPath;
-		this.kindleClippingsPath = kindleClippingsPath;
-		this.desktopPath = desktopPath;
+		this.kindleClippingsSubpath = kindleClippingsSubpath;
+		this.dataDir = "data/";
 	}
 
-	private async copyFile(sourcePath: string, destinationPath: string): Promise<void> {
+	private isFileDiffNonZero(sourcePath: string, destinationPath: string): boolean {
 		try {
-			await fs.copyFile(sourcePath, destinationPath);
-			console.log('File copied successfully!');
-		} catch (err) {
-			console.error(`Error copying file: ${err}`);
+			const content1 = fs.readFileSync(sourcePath, 'utf-8');
+			const content2 = fs.readFileSync(destinationPath, 'utf-8');
+		
+			return content1 === content2;
+		} catch (error) {
+			console.log('Error:', error);
+			return false;
 		}
 	}
 
-	private async isFileChanged(sourcePath: string, destinationPath: string): Promise<boolean> {
-		try {
-			const sourceStats = await fs.stat(sourcePath);
-			const destinationStats = await fs.stat(destinationPath);
-
-			const sourceModifiedTime = sourceStats.mtimeMs;
-			const destinationModifiedTime = destinationStats.mtimeMs;
-
-			return sourceModifiedTime > destinationModifiedTime;
-		} catch (err) {
-			if (err.code === 'ENOENT') {
-				// Destination file doesn't exist
-				return true;
-			} else {
-				console.error(`Error checking file status: ${err}`);
-				return false;
-			}
-		}
-	}
-
-	private async checkKindleConnected(): Promise<void> {
-		try {
-			await fs.access(this.kindleMountPath, fs.constants.F_OK);
-
-			const destinationPath = `${this.desktopPath}/My Clippings.txt`;
-
-			const changed = await this.isFileChanged(this.kindleClippingsPath, destinationPath);
-
-			if (changed) {
-				await this.copyFile(this.kindleClippingsPath, destinationPath);
-			} else {
-				console.log('File is up to date. No need to copy.');
-			}
-		} catch (err) {
-			console.error('Kindle is not connected or mounted.');
-		}
+	private isKindleConnected(): boolean {
+		return fs.existsSync(this.kindleMountPath);
 	}
 
 	public async run(): Promise<void> {
