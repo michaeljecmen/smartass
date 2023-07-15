@@ -36,8 +36,7 @@ export class KindleClippings {
 				return;
 			}
 
-			if (!stdout.includes(this.kindleMountPath)) {
-				console.error('Kindle is not connected or mounted.');
+			if (!this.isKindleConnected()) {
 				return;
 			}
 
