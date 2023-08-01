@@ -2,37 +2,36 @@ import * as moment from 'moment';
 
 // TODO make these real pods and make the highlight class use them
 // a key to uniquely identify a book
-interface Book {
+export class Book {
     public title: string;
     public authors: string[];
+	constructor(title: string, authors: string[]) {
+		this.title = title;
+		this.authors = authors;
+	}
 }
 
 // a key to uniquely identify a location in a book
-interface Location {
-    public loc_start: number;
-    public loc_end: number;
-}
-
-// POD class for storing an individual highlight in a readable format
-export class KindleHighlight {
-    public title: string;
-    public authors: string[];
-    public page_number: number;
-    // location start and location end of highlight. still not sure
+export class Location {
+	// location start and location end of highlight. still not sure
     // exactly what this is but I think it's the raw character index
     // which, with a start and end, can encapsulate the entire highlight
     // lcoation.
     public loc_start: number;
     public loc_end: number;
+	public page_number: number;
+	constructor(loc_start: number, loc_end: number, page_number: number) {
+		this.loc_start = loc_start;
+		this.loc_end = loc_end;
+		this.page_number = page_number;
+	}
+}
+
+// POD class for storing an individual highlight in a readable format
+export class KindleHighlight {
     public added_at: moment.Moment;
     public text: string;
-
-    constructor(title: string, authors: string[], page_number: number, loc_start: number, loc_end: number, added_at: moment.Moment, text: string) {
-        this.title = title;
-        this.authors = authors;
-        this.page_number = page_number;
-        this.loc_start = loc_start;
-        this.loc_end = loc_end;
+    constructor(added_at: moment.Moment, text: string) {
         this.added_at = added_at;
         this.text = text;
     }
@@ -44,7 +43,6 @@ export class KindleClippingsParser {
 
     // throws if the parse failed with error
     public parse(contents: string): void {
-        // TODO
         this.highlight_count = 0;
 		let lines = contents.split('\n');
 		let i = 0;
@@ -62,27 +60,44 @@ export class KindleClippingsParser {
 			i++;
 
 			// highlight contents themselves
-			let highlight_text = lines[i++];
+			let highlighted_text = lines[i++];
 
 			// delimiter line
 			i++;
 
 			// store the highlight
             let typed_moment = moment(added_at, 'LLLL');
-            let highlight = new KindleHighlight(title, authors, page_number, loc_start, loc_end, typed_moment, highlight_text);
-            // TODO store it
+			let book = new Book(title, authors);
+			let location = new Location(loc_start, loc_end, page_number);
+			let highlight = new KindleHighlight(typed_moment, highlighted_text);
+
+			// force book key to exist before updating the value
+			if (this.highlights.get(book) === undefined) {
+				this.highlights.set(book, new Map<Location, KindleHighlight>());
+			}
+			// ... but each location should be unique, so force push at this key level
+			this.highlights.get(book)?.set(location, highlight);
+
 			this.highlight_count++;
+
+			// dump the whole tree if it's debug mode
+			if (global.debug) {
+				console.log("added highlight %s from book %s at location %s", JSON.stringify(highlight), JSON.stringify(book), JSON.stringify(location));
+				console.log("highlights map now has %i objects:", this.highlight_count);
+			}
 		}
 	}
 
 	/// PARSER FUNCTIONS
 	// TODO unit test these good practice with junit & jest
 
-	// title, author(s)
-	private parse_clippings_title_authors(line: string): [string, string[]] {
+	// title, author(s) TODO
+	public parse_clippings_title_authors(line: string): [string, string[]] {
+		// look for example of multi author in my clippings and create one if needed
+		// then parse from reverse of string for parentheses (in case parentheses in title)
 		let authors: string[] = [];
 		let title = "";
-		if (this.debug) {
+		if (global.debug) {
 			console.log("line input: \"%s\"", line);
 			console.log("\tparsed title: \"%s\"", title);
 			console.log("\tparsed author(s): \"%s\"", authors);
@@ -90,8 +105,8 @@ export class KindleClippingsParser {
 		return [title, authors];
 	}
 
-	// page number, location range, timestamp added
-	private parse_clippings_metadata(line: string): [number, [number, number], string] {
+	// page number, location range, timestamp added TODO
+	public parse_clippings_metadata(line: string): [number, [number, number], string] {
 		return [0, [0,0], ""];
 	}
 }

@@ -6,7 +6,7 @@ export class MountedKindle {
 	private kindle_mount_path: string;
 	private debug: boolean;
 	private kindle_clippings_subpath: string;
-	private parser: KindleClippingsParser;
+	private parser: KindleClippingsParser = new KindleClippingsParser();
 	private data_dir: string;
 
 	constructor(kindle_mount_path: string, debug: boolean = false) {
@@ -23,6 +23,6 @@ export class MountedKindle {
 	// throws if there was a parsing error
 	public load_my_clippings(): void {
 		let contents = fs.readFileSync(this.kindle_mount_path + this.kindle_clippings_subpath).toString('utf-8');
-		let result = this.parser.parse(contents);
+		this.parser.parse(contents);
 	}
 }
