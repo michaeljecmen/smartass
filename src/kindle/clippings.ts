@@ -2,13 +2,13 @@ import * as moment from 'moment';
 
 // TODO make these real pods and make the highlight class use them
 // a key to uniquely identify a book
-export class Book {
+interface Book {
     public title: string;
     public authors: string[];
 }
 
 // a key to uniquely identify a location in a book
-export class Location {
+interface Location {
     public loc_start: number;
     public loc_end: number;
 }
@@ -40,8 +40,7 @@ export class KindleHighlight {
 
 export class KindleClippingsParser {
     private highlight_count: number = 0;
-    type BookKey = 
-    private highlights: Map<
+    private highlights: Map<Book, Map<Location, KindleHighlight>> = new Map();
 
     // throws if the parse failed with error
     public parse(contents: string): void {
