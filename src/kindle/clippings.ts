@@ -1,4 +1,5 @@
 import * as moment from 'moment';
+import * as log from '../common/log';
 
 // TODO make these real pods and make the highlight class use them
 // a key to uniquely identify a book
@@ -80,11 +81,10 @@ export class KindleClippingsParser {
 
 			this.highlight_count++;
 
-			// dump the whole tree if it's debug mode
-			if (global.debug) {
-				console.log("added highlight %s from book %s at location %s", JSON.stringify(highlight), JSON.stringify(book), JSON.stringify(location));
-				console.log("highlights map now has %i objects:", this.highlight_count);
-			}
+			// dump the whole tree in varying levels of debug
+			log.debug("added highlight %s from book %s at location %s", JSON.stringify(highlight), JSON.stringify(book), JSON.stringify(location));
+			log.debug("highlights map now has %i objects:", this.highlight_count);
+			log.trace("highlights tree after insertion: ", JSON.stringify(this.highlights));
 		}
 	}
 
@@ -97,11 +97,9 @@ export class KindleClippingsParser {
 		// then parse from reverse of string for parentheses (in case parentheses in title)
 		let authors: string[] = [];
 		let title = "";
-		if (global.debug) {
-			console.log("line input: \"%s\"", line);
-			console.log("\tparsed title: \"%s\"", title);
-			console.log("\tparsed author(s): \"%s\"", authors);
-		}
+		log.debug("line input: \"%s\"", line);
+		log.debug("\tparsed title: \"%s\"", title);
+		log.debug("\tparsed author(s): \"%s\"", authors);
 		return [title, authors];
 	}
 

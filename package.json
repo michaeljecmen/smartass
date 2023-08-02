@@ -16,6 +16,7 @@
     "prepare": "npm run compile",
     "pretest": "npm run compile",
     "posttest": "npm run lint",
-    "start": "npm run compile && node build_js/src/index.js"
+    "start": "npm run compile && node build_js/src/index.js",
+    "test": "npx jest"
   }
 }

@@ -1,4 +1,6 @@
 // entry point for smartass
+import { LogLevel } from "./common/log_level";
+import * as log from './common/log';
 import { MountedKindle } from "./kindle/kindle";
 
 function send_new_clippings_to_notion() {
@@ -23,9 +25,16 @@ function send_new_clippings_to_notion() {
 // (once per day updater or the actual readwise highlights forwarder)
 function main() {
 	let args = process.argv.slice(2);
-	console.log("invoked with args: ", args);
-	if (args.find((arg) => { arg === "--debug" }) !== undefined) {
-		global.debug = true;
+	globalThis.log_level = LogLevel.INFO;
+
+	log.info("invoked with args: ", args);
+	if (args.includes("--debug")) {
+		globalThis.log_level = LogLevel.DEBUG;
+		log.debug("set log level to DEBUG");
+	}
+	if (args.includes("--trace" )) {
+		globalThis.log_level = LogLevel.TRACE;
+		log.trace("set log level to TRACE");
 	}
 
 	send_new_clippings_to_notion();
