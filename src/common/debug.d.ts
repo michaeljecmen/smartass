@@ -1,8 +1,9 @@
 /* eslint-disable no-var */
-import { LogLevel } from './log_level';
+import LogLevel from './log_level';
+
 declare global {
-    var log_level: LogLevel;
+  // eslint-disable-next-line vars-on-top
+  var log_level: LogLevel;
 }
-  
+
 export {};
-  
